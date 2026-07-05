@@ -20,7 +20,7 @@ L'objectif de ce projet a été de concevoir, provisionner et automatiser une in
 * **Conteneurisation et Scripting Avancé :** Optimisation d'un Dockerfile Python/Flask utilisant des variables d'environnement dynamiques extraites à la volée via des scripts Linux (`awk`) à partir d'un fichier de configuration centralisé (`releases.txt`).
 * **Pipeline CI/CD Unifié (Jenkins) :** Conception d'un pipeline complet structuré en étapes (Extraction, Multi-Build avec arguments, Tests fonctionnels automatisés via curl/inspect, Push Docker Hub et Déploiement automatique via Ansible).
 
-  ![](images/site_vitrine.jpeg)
+![](images/releases.jpeg)
 
 ### Architecture du Projet & Arborescence
 ```text

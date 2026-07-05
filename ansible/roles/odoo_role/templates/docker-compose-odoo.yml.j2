@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  {{ odoo_db_service_name }}:
+    image: postgres:10
+    container_name: {{ odoo_db_container_name }}
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo_password
+    volumes:
+      - "{{ odoo_db_local_volume_path }}:/var/lib/postgresql/data"
+    networks:
+      - {{ docker_network_name }}
+    restart: always
+
+  {{ odoo_app_service_name }}:
+    image: odoo:13.0
+    container_name: {{ odoo_app_container_name }}
+    depends_on:
+      - {{ odoo_db_service_name }}
+    ports:
+      - "8069:8069"
+    networks:
+      - {{ docker_network_name }}
+    restart: always
+
+networks:
+  {{ docker_network_name }}:
+    driver: bridge

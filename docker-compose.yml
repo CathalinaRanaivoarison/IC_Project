@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  webapp:
+    container_name: test-ic-webapp
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ic-webapp:1.0
+    ports:
+      - "8080:8080"
+    environment:
+      - ODOO_URL=https://www.odoo.com/
+      - PGADMIN_URL=https://www.pgadmin.org/
+    restart: always

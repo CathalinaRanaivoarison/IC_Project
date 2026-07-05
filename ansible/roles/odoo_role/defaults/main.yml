@@ -1,0 +1,9 @@
+---
+docker_network_name: "odoo-network"
+odoo_db_local_volume_path: "/var/lib/odoo/postgres_data"
+
+odoo_db_service_name: "odoo_db_service"
+odoo_db_container_name: "odoo_db"
+
+odoo_app_service_name: "odoo_app_service"
+odoo_app_container_name: "odoo_app"

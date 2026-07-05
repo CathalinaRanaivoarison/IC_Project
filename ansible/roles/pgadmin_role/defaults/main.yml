@@ -1,0 +1,6 @@
+---
+docker_network_name: "pgadmin-network"
+pgadmin_local_volume_path: "/var/lib/pgadmin/data"
+
+pgadmin_service_name: "pgadmin_service"
+pgadmin_container_name: "pgadmin_app"

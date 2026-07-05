@@ -63,7 +63,7 @@ Flexibilité Commerciale : Réduction drastique du "Time-to-Market" pour le dép
 
 Tech Stack du projet : AWS EC2 • Terraform • Ansible • Jenkins • Docker • Docker Compose • Python (Flask) • Odoo 13 • pgAdmin4 • Linux (Bash/Awk) • Git
 
-🚀 Guide de Déploiement (Pas-à-Pas)
+## Guide de Déploiement (Pas-à-Pas)
 Étape 1 : Initialisation de l'Infrastructure (Terraform)
 Depuis votre machine locale, créez les 3 serveurs sur AWS :
 

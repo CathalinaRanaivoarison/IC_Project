@@ -136,9 +136,9 @@ terraform destroy -auto-approve
 ```
 ## Projet à venir:
 
-## Déploiement des différentes applications dans un cluster Kubernetes.** 
+## Déploiement des différentes applications dans un cluster Kubernetes.
 
-### ** Architecture** 
+###  Architecture
 
 Les applications ou services seront déployées dans un cluster Minikube, donc à un seul nœud et devront respecter l’architecture suivante. 
 

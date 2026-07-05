@@ -1,0 +1,17 @@
+---
+- name: Créer le répertoire de déploiement pour la Webapp et pgAdmin
+  file:
+    path: /opt/webapp
+    state: directory
+    mode: '0755'
+
+- name: Générer le fichier docker-compose depuis le template Jinja2
+  template:
+    src: docker-compose-pgadmin.yml.j2
+    dest: /opt/webapp/docker-compose.yml
+    mode: '0644'
+
+- name: Lancer la stack via Docker Compose
+  docker_compose_v2:
+    project_src: /opt/webapp
+    state: present

@@ -1,18 +1,9 @@
 ---
-- name: Déploiement de pgAdmin et du Site Vitrine sur le Serveur 2
+- name: Déploiement de la Webapp et pgAdmin sur le Serveur 2
   hosts: serveur_2
   become: true
   roles:
     - pgadmin_role
-  tasks:
-    - name: Lancer également le site vitrine mis à jour
-      docker_container:
-        name: test-ic-webapp
-        image: "{{ docker_user }}/ic-webapp:{{ app_version }}"
-        state: started
-        restart_policy: always
-        ports:
-          - "8080:8080" # Changement ici : port unifié sur 8080 pour matcher le conteneur
 
 - name: Déploiement de Odoo 13 sur le Serveur 3
   hosts: serveur_3

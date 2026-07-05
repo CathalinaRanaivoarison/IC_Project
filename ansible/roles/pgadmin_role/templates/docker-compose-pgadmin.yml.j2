@@ -15,6 +15,15 @@ services:
       - {{ docker_network_name }}
     restart: always
 
+  webapp_service:
+    image: "{{ docker_user }}/ic-webapp:{{ app_version }}"
+    container_name: ic_webapp
+    ports:
+      - "8080:8080"
+    networks:
+      - {{ docker_network_name }}
+    restart: always
+
 networks:
   {{ docker_network_name }}:
     driver: bridge

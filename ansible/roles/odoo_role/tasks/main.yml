@@ -1,0 +1,17 @@
+---
+- name: Créer le répertoire de déploiement pour Odoo
+  file:
+    path: /opt/odoo
+    state: directory
+    mode: '0755'
+
+- name: Générer le fichier docker-compose depuis le template Jinja2
+  template:
+    src: docker-compose-odoo.yml.j2
+    dest: /opt/odoo/docker-compose.yml
+    mode: '0644'
+
+- name: Lancer la stack Odoo via Docker Compose
+  docker_compose_v2:
+    project_src: /opt/odoo
+    state: present

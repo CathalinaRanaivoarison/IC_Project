@@ -17,8 +17,6 @@ L'objectif de ce projet a été de concevoir, provisionner et automatiser une in
 * **Pipeline CI/CD Unifié (Jenkins) :** Conception d'un pipeline complet structuré en étapes (Extraction, Multi-Build avec arguments, Tests fonctionnels automatisés via curl/inspect, Push Docker Hub et Déploiement automatique via Ansible).
 
 ### Architecture du Projet & Arborescence
-
-```text
 .
 ├── ansible/
 │   ├── inventory.ini
@@ -47,7 +45,7 @@ L'objectif de ce projet a été de concevoir, provisionner et automatiser une in
 ├── Dockerfile
 ├── Jenkinsfile
 └── releases.txt
-```text
+
 
 ## Problématiques & Défis Techniques
 **Isolation et Optimisation des Ressources** : Odoo et PostgreSQL étant gourmands en ressources, le défi consistait à isoler l'ERP sur un serveur dédié tout en maintenant le site vitrine et pgAdmin sur une autre instance pour garantir la haute disponibilité du site institutionnel.

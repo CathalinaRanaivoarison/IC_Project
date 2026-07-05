@@ -78,12 +78,14 @@ terraform apply -auto-approve
 **Étape 2 :** Configuration de l'Inventaire Ansible
 Ouvrez le fichier ansible/inventory.ini et mettez à jour les adresses IP fournies par Terraform :
 
+```text
 Ini, TOML
 [serveur_2]
 <IP_WEBAPP_TERRAFORM> ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ma-cle-aws.pem
 
 [serveur_3]
 <IP_ODOO_TERRAFORM> ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ma-cle-aws.pem
+```
 
 **Étape 3 :** Provisioning des Serveurs via Ansible
 Installez automatiquement Docker et Docker Compose sur les instances applicatives :
@@ -112,8 +114,7 @@ Vérifiez l'accessibilité de vos services dans votre navigateur :
 ## Nettoyage des Ressources
 Pour détruire l'ensemble de l'infrastructure et éviter toute facturation sur votre compte AWS :
 
-```bash
-Bash
+```Bash
 cd terraform/
 terraform destroy -auto-approve
 ```

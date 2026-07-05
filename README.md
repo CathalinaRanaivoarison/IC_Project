@@ -77,6 +77,7 @@ L'objectif de ce projet a été de concevoir, provisionner et automatiser une in
 
 ## Guide de Déploiement (Pas-à-Pas)
 **Étape 1 :** Initialisation de l'Infrastructure (Terraform)
+
 Cretion des 3 serveurs sur AWS :
 
 ```Bash
@@ -87,6 +88,7 @@ terraform apply -auto-approve
 ```
 
 **Étape 2 :** Configuration de l'Inventaire Ansible
+
 Ouvrez le fichier ansible/inventory.ini et mettez à jour les adresses IP fournies par Terraform :
 
 ```text
@@ -99,6 +101,7 @@ Ini, TOML
 ```
 
 **Étape 3 :** Provisioning des Serveurs via Ansible
+
 Installez automatiquement Docker et Docker Compose sur les instances applicatives :
 
 ```Bash
@@ -106,6 +109,7 @@ ansible-playbook -i ansible/inventory.ini ansible/playbooks/provision.yml
 ```
 
 **Étape 4 :** Configuration Globale & CI/CD Jenkins
+
 Accédez à l'interface Jenkins : http://<IP_JENKINS_TERRAFORM>:8080.
 
 Configurez vos identifiants Docker Hub dans Jenkins sous l'ID docker-hub-credentials.
@@ -123,6 +127,7 @@ Vérifiez l'accessibilité de vos services dans votre navigateur :
 **ERP Odoo 13 :** http://<IP_SERVEUR_3>:8069
 
 ## Nettoyage des Ressources
+
 Pour détruire l'ensemble de l'infrastructure et éviter toute facturation sur votre compte AWS :
 
 ```Bash

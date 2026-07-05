@@ -11,10 +11,15 @@ L'objectif de ce projet a été de concevoir, provisionner et automatiser une in
 
 ### Réalisations
 * **Infrastructure as Code (IaC) :** Écriture et déploiement de scripts Terraform pour automatiser le provisionnement d'instances AWS EC2 (`t2.medium` et `t2.micro`) et la configuration dynamique des règles de pare-feu (Security Groups).
+
 03 serveurs hébergées soit dans le cloud AWS:
+
         1) **Serveur 1** : Jenkins (AWS, t2.medium, docker_jenkins)
+        
         2) **Serveur 2** : Applications web site vitrine + pgadmin4 (AWS, t2.micro)
+        
         3) **Serveur 3** : Application Odoo (AWS, t2.micro)
+        
 * **Gestion de Configuration et Provisioning :** Création de playbooks Ansible pour automatiser l'installation complète de l'écosystème Docker/Docker Compose sur des instances vierges.
 * **Industrialisation par Rôles Ansible :** Modélisation de rôles Ansible hautement réutilisables (`odoo_role` et `pgadmin_role`) s'appuyant sur des templates Docker Compose configurés dynamiquement avec Jinja2 (volumes persistants, isolation réseau et services configurables).
 * **Conteneurisation et Scripting Avancé :** Optimisation d'un Dockerfile Python/Flask utilisant des variables d'environnement dynamiques extraites à la volée via des scripts Linux (`awk`) à partir d'un fichier de configuration centralisé (`releases.txt`).
@@ -107,7 +112,7 @@ Configurez vos identifiants Docker Hub dans Jenkins sous l'ID docker-hub-credent
 
 Créez un projet de type Pipeline, liez votre dépôt Git et lancez le Build.
 
-**Étape 5 :** Validation de la Recette (Captures d'écran finales)
+**Étape 5 :** Validation de la Recette 
 
 Vérifiez l'accessibilité de vos services dans votre navigateur :
 

@@ -134,3 +134,12 @@ Pour détruire l'ensemble de l'infrastructure et éviter toute facturation sur v
 cd terraform/
 terraform destroy -auto-approve
 ```
+## Projet à venir:
+
+## Déploiement des différentes applications dans un cluster Kubernetes.** 
+
+### ** Architecture** 
+
+Les applications ou services seront déployées dans un cluster Minikube, donc à un seul nœud et devront respecter l’architecture suivante. 
+
+![](images/synoptique_Kubernetes.jpeg)

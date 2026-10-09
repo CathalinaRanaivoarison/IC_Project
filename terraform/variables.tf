@@ -1,16 +1,10 @@
-variable "aws_region" {
+variable "region" {
+  description = "AWS region"
   type        = string
-  default     = "eu-west-3" # Région Paris
+  default     = "eu-west-3"
 }
 
-variable "instance_ami" {
+variable "admin_ip" {
+  description = "Public IP address authorized to access the infrastructure"
   type        = string
-  default     = "ami-007fae589fdf6e955" # Ubuntu 22.04 LTS à Paris 
 }
-
-variable "ssh_key_name" {
-  type        = string
-  description = "Le nom de votre clé SSH existante sur votre console AWS"
-  default     = "ma-cle-aws" 
-}
-

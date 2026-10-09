@@ -7,19 +7,35 @@ La société **IC GROUP** a mis en place un site web vitrine développé en Pyth
 1. **Odoo 13.0 (Édition Communautaire)** : Configuré et personnalisé avec son module LMS (Learning Management System) pour la gestion et la diffusion des formations internes.
 2. **pgAdmin4** : Déployé pour assurer l'administration graphique et sécurisée de la base de données PostgreSQL d'Odoo.
 
+Ci-dessous un aperçu du site vitrine attendu.
+![](images/site_vitrine.jpeg)
+
 L'objectif de ce projet a été de concevoir, provisionner et automatiser une infrastructure d'entreprise conteneurisée hautement disponible. Pour répondre aux besoins d'isolation des charges de travail et de sécurité, la solution est entièrement orchestrée et répartie de manière transparente sur **03 serveurs cloud distincts** (AWS EC2).
 
 ### Réalisations
+Le site web vitrine a été conçu par l’équipe de développeurs de l’entreprise et les fichiers y relatifs se trouvent dans le repo suscité : https://github.com/sadofrazer/ic-webapp.git .
+Il est de ma responsabilité de conteneuriser cette application tout en permettant la saisie des différentes URL des applications (Odoo et pgadmin) par le biais des variables d’environnement.
+L’image** créée devra permettre de lancer un container permettant d’héberger ce site web et ayant les liens adéquats permettant d’accéder à nos applications internes
+
+* **Conteneurisation de l’application web:** Il s’agit en effet d’une application web python utilisant le module Flask.
+
+Image de base : python:3.6-alpine
+Définir le répertoire /opt comme répertoire de travail
+Installer le module Flask version 1.1.2 à l’aide de pip install flask==1.1.2
+Exposer le port 8080 qui est celui utilisé par défaut par l'application
+Créer les variables d’environnement ODOO_URL et PGADMIN_URL afin de permettre la définition de ces url lors du lancement du container
+Lancer l’application app.py dans le ENTRYPOINT grâce à la commande python
+
 * **Infrastructure as Code (IaC) :** Écriture et déploiement de scripts Terraform pour automatiser le provisionnement d'instances AWS EC2 (`t2.medium` et `t2.micro`) et la configuration dynamique des règles de pare-feu (Security Groups).
 
 03 serveurs hébergées soit dans le cloud AWS:
 
         1) **Serveur 1** : Jenkins (AWS, t2.medium, docker_jenkins)
-        
+
         2) **Serveur 2** : Applications web site vitrine + pgadmin4 (AWS, t2.micro)
-        
+
         3) **Serveur 3** : Application Odoo (AWS, t2.micro)
-        
+
 * **Gestion de Configuration et Provisioning :** Création de playbooks Ansible pour automatiser l'installation complète de l'écosystème Docker/Docker Compose sur des instances vierges.
 * **Industrialisation par Rôles Ansible :** Modélisation de rôles Ansible hautement réutilisables (`odoo_role` et `pgadmin_role`) s'appuyant sur des templates Docker Compose configurés dynamiquement avec Jinja2 (volumes persistants, isolation réseau et services configurables).
 * **Conteneurisation et Scripting Avancé :** Optimisation d'un Dockerfile Python/Flask utilisant des variables d'environnement dynamiques extraites à la volée via des scripts Linux (`awk`) à partir d'un fichier de configuration centralisé (`releases.txt`).
@@ -116,7 +132,7 @@ Configurez vos identifiants Docker Hub dans Jenkins sous l'ID docker-hub-credent
 
 Créez un projet de type Pipeline, liez votre dépôt Git et lancez le Build.
 
-**Étape 5 :** Validation de la Recette 
+**Étape 5 :** Validation de la Recette
 
 Vérifiez l'accessibilité de vos services dans votre navigateur :
 
@@ -140,6 +156,6 @@ terraform destroy -auto-approve
 
 ###  Architecture
 
-Les applications ou services seront déployées dans un cluster Minikube, donc à un seul nœud et devront respecter l’architecture suivante. 
+Les applications ou services seront déployées dans un cluster Minikube, donc à un seul nœud et devront respecter l’architecture suivante.
 
 ![](images/synoptique_Kubernetes.jpeg)

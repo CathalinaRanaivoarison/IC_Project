@@ -1,6 +1,27 @@
+#SPDX-License-Identifier: MIT-0
 ---
-docker_network_name: "pgadmin-network"
-pgadmin_local_volume_path: "/var/lib/pgadmin/data"
+# defaults file for roles/pgadmin_role
 
-pgadmin_service_name: "pgadmin_service"
-pgadmin_container_name: "pgadmin_app"
+pgadmin_container_name: "pgadmin"
+
+pgadmin_volume_name: "pgadmin_data"
+
+pgadmin_data_path: "/opt/pgadmin_data"
+
+pgadmin_image: "dpage/pgadmin4"
+
+pgadmin_port: 8081
+pgadmin_container_port: 80
+
+pgadmin_default_email: "admin@example.com"
+pgadmin_default_password: "password"
+
+servers_file_path: "/opt/pgadmin/servers.json"
+
+#odoo_postgres_host: "{{ hostvars[groups['odoo'][0]]['ansible_host'] }}"
+odoo_postgres_host: "{{ hostvars[groups['odoo'][0]]['private_ip'] }}"
+odoo_postgres_port: 5432
+
+odoo_postgres_db: "postgres"
+odoo_postgres_user: "odoo"
+odoo_postgres_password: "password"

@@ -2,73 +2,90 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_CREDENTIALS_ID = 'docker-hub-credentials'
-        DOCKER_USER          = 'votre_username_dockerhub'
+        IMAGE_NAME = 'ic-webapp'
+        CONTAINER_NAME = 'test-ic-webapp'
     }
 
     stages {
-        stage('1. Extraction des Variables') {
+        stage('Read releases.txt') {
             steps {
                 script {
-                    env.APP_VERSION = sh(script: "awk '/VERSION/ {print \$2}' releases.txt", returnStdout: true).trim()
-                    env.ODOO_URL    = sh(script: "awk '/ODOO_URL/ {print \$2}' releases.txt", returnStdout: true).trim()
-                    env.PGADMIN_URL = sh(script: "awk '/PGADMIN_URL/ {print \$2}' releases.txt", returnStdout: true).trim()
+                    env.APP_VERSION = sh(
+                        script: "awk '\$1 == \"VERSION\" {print \$2}' releases.txt",
+                        returnStdout: true
+                    ).trim()
+
+                    env.ODOO_URL = sh(
+                        script: "awk '\$1 == \"ODOO_URL\" {print \$2}' releases.txt",
+                        returnStdout: true
+                    ).trim()
+
+                    env.PGADMIN_URL = sh(
+                        script: "awk '\$1 == \"PGADMIN_URL\" {print \$2}' releases.txt",
+                        returnStdout: true
+                    ).trim()
+
+                    if (!env.APP_VERSION || !env.ODOO_URL || !env.PGADMIN_URL) {
+                        error('Une valeur manque dans releases.txt')
+                    }
+
+                    echo "Version : ${env.APP_VERSION}"
+                    echo "ODOO_URL : ${env.ODOO_URL}"
+                    echo "PGADMIN_URL : ${env.PGADMIN_URL}"
                 }
             }
         }
 
-        stage('2. Build de l\'Image') {
+        stage('Build image') {
             steps {
                 sh '''
-                docker build \
-                  --build-arg APP_VERSION=${APP_VERSION} \
-                  --build-arg ODOO_URL=${ODOO_URL} \
-                  --build-arg PGADMIN_URL=${PGADMIN_URL} \
-                  -t ic-webapp:${APP_VERSION} .
+                    docker build \
+                      --build-arg APP_VERSION="$APP_VERSION" \
+                      --build-arg ODOO_URL="$ODOO_URL" \
+                      --build-arg PGADMIN_URL="$PGADMIN_URL" \
+                      -t "$IMAGE_NAME:$APP_VERSION" .
                 '''
             }
         }
 
-        stage('3. Tests de Validation') {
+        stage('Test image') {
             steps {
-                script {
-                    sh "docker run -d -p 8080:8080 --name test-ic-webapp-ci ic-webapp:${APP_VERSION}"
-                    sh "sleep 5"
-                    sh "curl -s -f http://localhost:8080 > /dev/null"
-                    sh "docker exec test-ic-webapp-ci env | grep ODOO_URL"
-                    sh "docker exec test-ic-webapp-ci env | grep PGADMIN_URL"
-                }
-            }
-            post {
-                always {
-                    sh "docker rm -f test-ic-webapp-ci || true"
-                }
+                sh '''
+                    docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
+
+                    docker run -d \
+                      --name "$CONTAINER_NAME" \
+                      -p 18080:8080 \
+                      "$IMAGE_NAME:$APP_VERSION"
+
+                    trap 'docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true' EXIT
+
+                    for i in $(seq 1 15); do
+                      if curl -fsS http://localhost:18080/ -o /tmp/ic-webapp-test.html; then
+                        break
+                      fi
+                      sleep 2
+                    done
+
+                    test -s /tmp/ic-webapp-test.html
+                    grep -q 'Odoo' /tmp/ic-webapp-test.html
+                    grep -q 'Postgres' /tmp/ic-webapp-test.html
+
+                    echo "Test HTTP et contenu : OK"
+                '''
             }
         }
+    }
 
-        stage('4. Push sur Docker Hub') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh '''
-                    echo "$PASS" | docker login -u "$USER" --password-stdin
-                    docker tag ic-webapp:${APP_VERSION} ${DOCKER_USER}/ic-webapp:${APP_VERSION}
-                    docker push ${DOCKER_USER}/ic-webapp:${APP_VERSION}
-                    '''
-                }
-            }
+    post {
+        always {
+            sh 'docker rm -f test-ic-webapp 2>/dev/null || true'
         }
-
-        stage('5. Déploiement via Ansible') {
-            steps {
-                ansiblePlaybook(
-                    playbook: 'ansible/playbooks/deploy.yml',
-                    inventory: 'ansible/inventory.ini',
-                    extraVars: [
-                        app_version: "${env.APP_VERSION}",
-                        docker_user: "${env.DOCKER_USER}"
-                    ]
-                )
-            }
+        success {
+            echo "Build et tests réussis pour ic-webapp:${APP_VERSION}"
+        }
+        failure {
+            echo 'Le pipeline a échoué : consulter les logs des étapes.'
         }
     }
 }

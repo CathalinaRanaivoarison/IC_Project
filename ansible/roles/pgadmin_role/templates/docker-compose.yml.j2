@@ -1,0 +1,21 @@
+services:
+  pgadmin:
+    image: {{ pgadmin_image }}
+    container_name: {{ pgadmin_container_name }}
+    ports:
+      - "{{ pgadmin_port }}:{{ pgadmin_container_port }}"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "{{ pgadmin_default_email }}"
+      PGADMIN_DEFAULT_PASSWORD: "{{ pgadmin_default_password }}"
+      PGADMIN_REPLACE_SERVERS_ON_STARTUP: "True"
+    volumes:
+      - {{ pgadmin_volume_name }}:/var/lib/pgadmin
+      - {{ servers_file_path }}:/pgadmin4/servers.json:ro
+    networks:
+      - pgadmin_network
+
+volumes:
+  {{ pgadmin_volume_name }}:
+
+networks:
+  pgadmin_network:

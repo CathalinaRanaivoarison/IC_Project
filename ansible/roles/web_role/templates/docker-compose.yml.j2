@@ -1,0 +1,10 @@
+services:
+  {{ web_container_name }}:
+    image: {{ web_image_name }}:{{ web_image_tag }}
+    container_name: {{ web_container_name }}
+    ports:
+      - "{{ web_host_port }}:{{ web_container_port }}"
+    environment:
+      ODOO_URL: "{{ odoo_url }}"
+      PGADMIN_URL: "{{ pgadmin_url }}"
+    restart: unless-stopped

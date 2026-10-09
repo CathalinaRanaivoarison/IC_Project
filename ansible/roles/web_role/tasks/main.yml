@@ -1,0 +1,31 @@
+---
+- name: Install required packages
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-compose-v2
+    state: present
+    update_cache: true
+
+- name: Ensure Docker is started and enabled
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Create application directory
+  ansible.builtin.file:
+    path: /opt/ic-webapp
+    state: directory
+    mode: '0755'
+
+- name: Copy application Docker Compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: /opt/ic-webapp/docker-compose.yml
+    mode: '0644'
+
+- name: Start web application
+  community.docker.docker_compose_v2:
+    project_src: /opt/ic-webapp
+    state: present

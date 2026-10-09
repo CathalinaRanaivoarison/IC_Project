@@ -1,0 +1,34 @@
+services:
+  odoo:
+    image: {{ odoo_image }}
+    container_name: {{ odoo_container_name }}
+    depends_on:
+      - postgres
+    ports:
+      - "8069:8069"
+    environment:
+      - HOST=postgres
+      - USER={{ postgres_user }}
+      - PASSWORD={{ postgres_password }}
+    volumes:
+      - {{ odoo_volume_name }}:/var/lib/odoo
+    networks:
+      - {{ odoo_network_name }}
+
+  postgres:
+    image: {{ postgres_image }}
+    container_name: {{ postgres_container_name }}
+    environment:
+      - POSTGRES_DB={{ postgres_db }}
+      - POSTGRES_USER={{ postgres_user }}
+      - POSTGRES_PASSWORD={{ postgres_password }}
+    volumes:
+      - {{ postgres_data_path }}:/var/lib/postgresql/data
+    networks:
+      - {{ odoo_network_name }}
+
+volumes:
+  {{ odoo_volume_name }}:
+
+networks:
+  {{ odoo_network_name }}:

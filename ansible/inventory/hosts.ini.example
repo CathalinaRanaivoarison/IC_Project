@@ -1,0 +1,8 @@
+[jenkins]
+jenkins-ec2 ansible_host=192.0.2.10 private_ip=10.0.1.5
+
+[web]
+web-ec2 ansible_host=192.0.2.11 private_ip=10.0.1.32
+
+[odoo]
+odoo-ec2 ansible_host=192.0.2.12 private_ip=10.0.1.223

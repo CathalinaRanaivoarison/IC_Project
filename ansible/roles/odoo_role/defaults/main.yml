@@ -1,9 +1,18 @@
+#SPDX-License-Identifier: MIT-0
 ---
-docker_network_name: "odoo-network"
-odoo_db_local_volume_path: "/var/lib/odoo/postgres_data"
+# defaults file for roles/odoo_role
+odoo_network_name: "odoo_network"
 
-odoo_db_service_name: "odoo_db_service"
-odoo_db_container_name: "odoo_db"
+odoo_container_name: "odoo-web"
+postgres_container_name: "odoo-db"
 
-odoo_app_service_name: "odoo_app_service"
-odoo_app_container_name: "odoo_app"
+odoo_volume_name: "odoo_data"
+
+postgres_data_path: "/opt/postgres_data"
+
+odoo_image: "odoo:17"
+postgres_image: "postgres:15"
+
+postgres_db: "postgres"
+postgres_user: "odoo"
+postgres_password: "password"

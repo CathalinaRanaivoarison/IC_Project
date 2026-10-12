@@ -18,6 +18,8 @@ services:
   postgres:
     image: {{ postgres_image }}
     container_name: {{ postgres_container_name }}
+    ports:
+      - "{{ hostvars[inventory_hostname]['private_ip'] }}:5432:5432"
     environment:
       - POSTGRES_DB={{ postgres_db }}
       - POSTGRES_USER={{ postgres_user }}

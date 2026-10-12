@@ -1,6 +1,15 @@
 pipeline {
     agent any
 
+    parameters {
+        booleanParam(
+            name: 'DEPLOY_TO_AWS',
+            defaultValue: false,
+            description: 'Activer uniquement lorsque les instances AWS et l’inventaire Ansible sont prêts'
+        )
+    }
+
+
     environment {
         IMAGE_NAME = 'ic-webapp'
         CONTAINER_NAME = 'test-ic-webapp'
@@ -129,6 +138,70 @@ pipeline {
                           --tag "$DOCKERHUB_USERNAME/$IMAGE_NAME:$APP_VERSION" \
                           --push \
                           .
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy with Ansible') {
+            when {
+                expression { params.DEPLOY_TO_AWS }
+            }
+            steps {
+                script {
+                    def inventory = readFile('ansible/inventory/hosts.ini')
+
+                    if (!inventory.contains(
+                        '# AWS_INFRASTRUCTURE_RECREATED_AND_INVENTORY_UPDATED'
+                    )) {
+                        error(
+                            'Déploiement bloqué : recréer AWS, mettre à jour ' +
+                            'ansible/inventory/hosts.ini, puis ajouter le marqueur ' +
+                            'de validation dans le fichier.'
+                        )
+                    }
+
+                    if (env.ODOO_URL == 'https://www.odoo.com/' ||
+                        env.PGADMIN_URL == 'https://www.pgadmin.org/') {
+                        error(
+                            'Déploiement bloqué : remplacer les URL de démonstration ' +
+                            'par les URL des applications déployées.'
+                        )
+                    }
+                }
+
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'ansible-ssh-key',
+                        keyFileVariable: 'SSH_KEY'
+                    ),
+                    string(
+                        credentialsId: 'ansible-vault-password',
+                        variable: 'ANSIBLE_VAULT_PASSWORD'
+                    ),
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKERHUB_USERNAME',
+                        passwordVariable: 'DOCKERHUB_TOKEN'
+                    )
+                ]) {
+                    sh '''
+                        set -eu
+                        set +x
+
+                        VAULT_FILE="$(mktemp)"
+                        trap 'rm -f "$VAULT_FILE"' EXIT
+                        printf '%s' "$ANSIBLE_VAULT_PASSWORD" > "$VAULT_FILE"
+
+                        cd ansible
+
+                        ansible-playbook \
+                          -i inventory/hosts.ini \
+                          playbooks/site.yml \
+                          --private-key "$SSH_KEY" \
+                          --vault-password-file "$VAULT_FILE" \
+                          --extra-vars \
+                          "web_image_name=$DOCKERHUB_USERNAME/ic-webapp web_image_tag=$APP_VERSION odoo_url=$ODOO_URL pgadmin_url=$PGADMIN_URL"
                     '''
                 }
             }

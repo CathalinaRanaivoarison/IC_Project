@@ -61,7 +61,7 @@
     dest: "{{ servers_file_path }}"
     owner: root
     group: root
-    mode: "0640"
+    mode: "0600"
 
 - name: Deploy pgAdmin docker-compose
   ansible.builtin.template:

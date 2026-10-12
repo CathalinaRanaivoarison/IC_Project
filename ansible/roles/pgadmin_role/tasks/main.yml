@@ -59,13 +59,17 @@
   ansible.builtin.template:
     src: servers.json.j2
     dest: "{{ servers_file_path }}"
-    mode: "0644"
+    owner: root
+    group: root
+    mode: "0640"
 
 - name: Deploy pgAdmin docker-compose
   ansible.builtin.template:
     src: docker-compose.yml.j2
     dest: /opt/pgadmin/docker-compose.yml
-    mode: "0644"
+    owner: root
+    group: root
+    mode: "0600"
 
 - name: Start pgAdmin
   community.docker.docker_compose_v2:

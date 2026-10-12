@@ -160,6 +160,10 @@ pipeline {
                         credentialsId: 'ansible-inventory',
                         variable: 'ANSIBLE_INVENTORY_FILE'
                     ),
+                    file(
+                        credentialsId: 'ansible-vault-file',
+                        variable: 'ANSIBLE_VAULT_FILE'
+                    ),
                     sshUserPrivateKey(
                         credentialsId: 'ansible-ssh-key',
                         keyFileVariable: 'SSH_KEY'
@@ -178,9 +182,18 @@ pipeline {
                         set -eu
                         set +x
 
-                        VAULT_FILE="$(mktemp)"
-                        trap 'rm -f "$VAULT_FILE"' EXIT
-                        printf '%s' "$ANSIBLE_VAULT_PASSWORD" > "$VAULT_FILE"
+                        VAULT_PASSWORD_FILE="$(mktemp)"
+                        VAULT_DEST="$WORKSPACE/ansible/group_vars/all/vault.yml"
+
+                        cleanup() {
+                            rm -f "$VAULT_PASSWORD_FILE" "$VAULT_DEST"
+                        }
+                        trap cleanup EXIT
+
+                        printf '%s' "$ANSIBLE_VAULT_PASSWORD" > "$VAULT_PASSWORD_FILE"
+
+                        mkdir -p "$WORKSPACE/ansible/group_vars/all"
+                        install -m 600 "$ANSIBLE_VAULT_FILE" "$VAULT_DEST"
 
                         cd ansible
 
@@ -191,7 +204,7 @@ pipeline {
                           -i "$ANSIBLE_INVENTORY_FILE" \
                           playbooks/site.yml \
                           --private-key "$SSH_KEY" \
-                          --vault-password-file "$VAULT_FILE" \
+                          --vault-password-file "$VAULT_PASSWORD_FILE" \
                           --extra-vars \
                           "web_image_name=$DOCKERHUB_USERNAME/ic-webapp web_image_tag=$APP_VERSION odoo_url=$ODOO_URL pgadmin_url=$PGADMIN_URL"
                     '''

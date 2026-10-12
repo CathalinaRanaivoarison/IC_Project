@@ -48,24 +48,41 @@ pipeline {
             }
         }
 
+        
+        
         stage('Test image') {
             steps {
                 sh '''
+                    set -eu
+
+                    NETWORK_NAME="ic-test-network"
+
+                    docker network inspect "$NETWORK_NAME" >/dev/null 2>&1 || \
+                      docker network create "$NETWORK_NAME"
+
                     docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
+                    rm -f /tmp/ic-webapp-test.html
+
+                    trap 'docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true; rm -f /tmp/ic-webapp-test.html' EXIT
 
                     docker run -d \
                       --name "$CONTAINER_NAME" \
-                      -p 18080:8080 \
+                      --network "$NETWORK_NAME" \
                       "$IMAGE_NAME:$APP_VERSION"
 
-                    trap 'docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true' EXIT
-
                     for i in $(seq 1 15); do
-                      if curl -fsS http://localhost:18080/ -o /tmp/ic-webapp-test.html; then
+                      if docker run --rm \
+                        --network "$NETWORK_NAME" \
+                        curlimages/curl:latest \
+                        -fsS --max-time 5 \
+                        http://test-ic-webapp:8080/ \
+                        > /tmp/ic-webapp-test.html; then
                         break
                       fi
                       sleep 2
                     done
+
+            
 
                     test -s /tmp/ic-webapp-test.html
                     grep -q 'Odoo' /tmp/ic-webapp-test.html
@@ -75,7 +92,6 @@ pipeline {
                 '''
             }
         }
-    }
 
     post {
         always {

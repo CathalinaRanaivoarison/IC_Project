@@ -92,7 +92,7 @@ pipeline {
                 '''
             }
         }
-
+    }
     post {
         always {
             sh 'docker rm -f test-ic-webapp 2>/dev/null || true'

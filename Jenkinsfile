@@ -13,7 +13,7 @@ pipeline {
     environment {
         IMAGE_NAME = 'ic-webapp'
         CONTAINER_NAME = 'test-ic-webapp'
-        BUILDX_BUILDER = 'default'
+        BUILDX_BUILDER = 'jenkins-multiarch'
     }
 
     stages {

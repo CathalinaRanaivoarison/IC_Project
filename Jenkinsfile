@@ -4,6 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = 'ic-webapp'
         CONTAINER_NAME = 'test-ic-webapp'
+        BUILDX_BUILDER = 'ic-multiarch'
     }
 
     stages {
@@ -36,10 +37,25 @@ pipeline {
             }
         }
 
-        stage('Build image') {
+        stage('Check Buildx') {
             steps {
                 sh '''
-                    docker build \
+                    set -eu
+                    docker buildx inspect "$BUILDX_BUILDER" >/dev/null
+                    docker buildx inspect "$BUILDX_BUILDER"
+                '''
+            }
+        }
+
+        stage('Build image for tests') {
+            steps {
+                sh '''
+                    set -eu
+
+                    docker buildx build \
+                      --builder "$BUILDX_BUILDER" \
+                      --platform linux/arm64 \
+                      --load \
                       --build-arg APP_VERSION="$APP_VERSION" \
                       --build-arg ODOO_URL="$ODOO_URL" \
                       --build-arg PGADMIN_URL="$PGADMIN_URL" \
@@ -48,8 +64,6 @@ pipeline {
             }
         }
 
-        
-        
         stage('Test image') {
             steps {
                 sh '''
@@ -82,8 +96,6 @@ pipeline {
                       sleep 2
                     done
 
-            
-
                     test -s /tmp/ic-webapp-test.html
                     grep -q 'Odoo' /tmp/ic-webapp-test.html
                     grep -q 'Postgres' /tmp/ic-webapp-test.html
@@ -93,8 +105,7 @@ pipeline {
             }
         }
 
-
-        stage('Push Docker Hub') {
+        stage('Push multiarchitecture Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-credentials',
@@ -109,23 +120,30 @@ pipeline {
 
                         trap 'docker logout >/dev/null 2>&1 || true' EXIT
 
-                        docker tag "$IMAGE_NAME:$APP_VERSION" \
-                          "$DOCKERHUB_USERNAME/$IMAGE_NAME:$APP_VERSION"
-
-                        docker push \
-                          "$DOCKERHUB_USERNAME/$IMAGE_NAME:$APP_VERSION"
+                        docker buildx build \
+                          --builder "$BUILDX_BUILDER" \
+                          --platform linux/amd64,linux/arm64 \
+                          --build-arg APP_VERSION="$APP_VERSION" \
+                          --build-arg ODOO_URL="$ODOO_URL" \
+                          --build-arg PGADMIN_URL="$PGADMIN_URL" \
+                          --tag "$DOCKERHUB_USERNAME/$IMAGE_NAME:$APP_VERSION" \
+                          --push \
+                          .
                     '''
                 }
             }
         }
     }
+
     post {
         always {
             sh 'docker rm -f test-ic-webapp 2>/dev/null || true'
         }
+
         success {
-            echo "Build et tests réussis pour ic-webapp:${APP_VERSION}"
+            echo "Build, tests et publication réussis pour ${IMAGE_NAME}:${APP_VERSION} (linux/amd64, linux/arm64)"
         }
+
         failure {
             echo 'Le pipeline a échoué : consulter les logs des étapes.'
         }

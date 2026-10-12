@@ -93,13 +93,16 @@ resource "aws_security_group" "odoo" {
     cidr_blocks = [var.admin_ip]
   }
 
+
+
   ingress {
     description     = "PostgreSQL from Web/pgAdmin"
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
-    cidr_blocks = [var.admin_ip]
+    security_groups = [aws_security_group.web.id]
   }
+
 
   ingress {
     description = "Odoo"

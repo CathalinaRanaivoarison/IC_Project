@@ -1,0 +1,75 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install prerequisites
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - fontconfig
+      - openjdk-21-jre
+    state: present
+
+- name: Create Jenkins keyrings directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Download Jenkins repository signing key
+  ansible.builtin.get_url:
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+    dest: /etc/apt/keyrings/jenkins.asc
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure Jenkins repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/jenkins.asc] https://pkg.jenkins.io/debian-stable binary/"
+    filename: jenkins
+    state: present
+    update_cache: true
+
+- name: Install Jenkins
+  ansible.builtin.apt:
+    name: jenkins
+    state: present
+    update_cache: true
+
+- name: Enable and start Jenkins
+  ansible.builtin.systemd:
+    name: jenkins
+    enabled: true
+    state: started
+
+- name: Install Docker and Git
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-buildx
+      - git
+    state: present
+    update_cache: true
+
+- name: Enable and start Docker
+  ansible.builtin.systemd:
+    name: docker
+    enabled: true
+    state: started
+
+- name: Add Jenkins user to Docker group
+  ansible.builtin.user:
+    name: jenkins
+    groups: docker
+    append: true
+
+- name: Restart Jenkins to apply Docker group membership
+  ansible.builtin.systemd:
+    name: jenkins
+    state: restarted

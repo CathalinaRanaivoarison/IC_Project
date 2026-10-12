@@ -2,19 +2,23 @@
 - name: Deploy Odoo
   hosts: odoo
   become: true
-
+  vars_files:
+    - ../group_vars/all/vault.yml
   roles:
     - odoo_role
 
 - name: Deploy pgAdmin
   hosts: web
   become: true
-
+  vars_files:
+    - ../group_vars/all/vault.yml
   roles:
     - pgadmin_role
 
 - name: Deploy Web Application
   hosts: web
   become: true
+  vars_files:
+    - ../group_vars/all/vault.yml
   roles:
     - web_role

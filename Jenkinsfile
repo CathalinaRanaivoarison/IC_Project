@@ -149,28 +149,17 @@ pipeline {
             }
             steps {
                 script {
-                    def inventory = readFile('ansible/inventory/hosts.ini')
-
-                    if (!inventory.contains(
-                        '# AWS_INFRASTRUCTURE_RECREATED_AND_INVENTORY_UPDATED'
-                    )) {
-                        error(
-                            'Déploiement bloqué : recréer AWS, mettre à jour ' +
-                            'ansible/inventory/hosts.ini, puis ajouter le marqueur ' +
-                            'de validation dans le fichier.'
-                        )
-                    }
-
                     if (env.ODOO_URL == 'https://www.odoo.com/' ||
                         env.PGADMIN_URL == 'https://www.pgadmin.org/') {
-                        error(
-                            'Déploiement bloqué : remplacer les URL de démonstration ' +
-                            'par les URL des applications déployées.'
-                        )
+                        error('Déploiement bloqué : les URL de démonstration doivent être remplacées.')
                     }
                 }
 
                 withCredentials([
+                    file(
+                        credentialsId: 'ansible-inventory',
+                        variable: 'ANSIBLE_INVENTORY_FILE'
+                    ),
                     sshUserPrivateKey(
                         credentialsId: 'ansible-ssh-key',
                         keyFileVariable: 'SSH_KEY'
@@ -195,8 +184,11 @@ pipeline {
 
                         cd ansible
 
+                        test -s "$ANSIBLE_INVENTORY_FILE"
+                        grep -q '^# AWS_INFRASTRUCTURE_RECREATED_AND_INVENTORY_UPDATED$' "$ANSIBLE_INVENTORY_FILE"
+
                         ansible-playbook \
-                          -i inventory/hosts.ini \
+                          -i "$ANSIBLE_INVENTORY_FILE" \
                           playbooks/site.yml \
                           --private-key "$SSH_KEY" \
                           --vault-password-file "$VAULT_FILE" \

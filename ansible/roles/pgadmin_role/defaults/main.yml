@@ -14,7 +14,7 @@ pgadmin_port: 8081
 pgadmin_container_port: 80
 
 pgadmin_default_email: "admin@example.com"
-pgadmin_default_password: "password"
+pgadmin_default_password: "{{ vault_pgadmin_password }}"
 
 servers_file_path: "/opt/pgadmin/servers.json"
 
@@ -24,4 +24,4 @@ odoo_postgres_port: 5432
 
 odoo_postgres_db: "postgres"
 odoo_postgres_user: "odoo"
-odoo_postgres_password: "password"
+odoo_postgres_password: "{{ vault_postgres_password }}"

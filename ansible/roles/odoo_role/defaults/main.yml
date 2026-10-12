@@ -15,4 +15,4 @@ postgres_image: "postgres:15"
 
 postgres_db: "postgres"
 postgres_user: "odoo"
-postgres_password: "password"
+postgres_password: "{{ vault_postgres_password }}"

@@ -1,6 +1,6 @@
 ---
 web_container_name: "ic-webapp"
-web_image_name: "ic-webapp"
+web_image_name: "cathalina/ic-webapp"
 web_image_tag: "1.1"
 
 web_host_port: 8080

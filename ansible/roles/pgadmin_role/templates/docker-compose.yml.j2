@@ -1,7 +1,8 @@
 services:
-  pgadmin:
+  {{ pgadmin_service_name }}:
     image: {{ pgadmin_image }}
     container_name: {{ pgadmin_container_name }}
+    restart: unless-stopped
     ports:
       - "{{ pgadmin_port }}:{{ pgadmin_container_port }}"
     environment:
@@ -11,11 +12,17 @@ services:
     volumes:
       - {{ pgadmin_volume_name }}:/var/lib/pgadmin
       - {{ servers_file_path }}:/pgadmin4/servers.json:ro
+      - {{ pgpass_file_path }}:/pgpass
     networks:
-      - pgadmin_network
+      - {{ pgadmin_network_name }}
 
 volumes:
   {{ pgadmin_volume_name }}:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: {{ pgadmin_data_path }}
 
 networks:
-  pgadmin_network:
+  {{ pgadmin_network_name }}:

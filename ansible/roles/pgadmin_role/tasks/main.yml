@@ -1,52 +1,11 @@
-#SPDX-License-Identifier: MIT-0
 ---
-# tasks file for roles/pgadmin_role
-
-- name: Install Docker prerequisites
-  ansible.builtin.apt:
-    name:
-      - ca-certificates
-      - curl
-      - gnupg
-    state: present
-    update_cache: true
-
-- name: Create Docker keyring directory
-  ansible.builtin.file:
-    path: /etc/apt/keyrings
-    state: directory
-    mode: "0755"
-
-- name: Download Docker GPG key
-  ansible.builtin.get_url:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    dest: /etc/apt/keyrings/docker.asc
-    mode: "0644"
-
-- name: Add Docker repository
-  ansible.builtin.apt_repository:
-    repo: >-
-      deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc]
-      https://download.docker.com/linux/ubuntu
-      {{ ansible_distribution_release }} stable
-    state: present
-    filename: docker
-
-- name: Install Docker Engine
-  ansible.builtin.apt:
-    name:
-      - docker-ce
-      - docker-ce-cli
-      - containerd.io
-      - docker-buildx-plugin
-      - docker-compose-plugin
-    state: present
-    update_cache: true
-
+# L'utilisateur interne de pgAdmin a l'UID 5050 : il doit posséder ses fichiers.
 - name: Create pgAdmin data directory
   ansible.builtin.file:
     path: "{{ pgadmin_data_path }}"
     state: directory
+    owner: "5050"
+    group: "5050"
     mode: "0755"
 
 - name: Create pgAdmin compose directory
@@ -59,9 +18,18 @@
   ansible.builtin.template:
     src: servers.json.j2
     dest: "{{ servers_file_path }}"
-    owner: root
-    group: root
+    owner: "5050"
+    group: "5050"
+    mode: "0644"
+
+- name: Deploy pgpass file
+  ansible.builtin.template:
+    src: pgpass.j2
+    dest: "{{ pgpass_file_path }}"
+    owner: "5050"
+    group: "5050"
     mode: "0600"
+  no_log: true
 
 - name: Deploy pgAdmin docker-compose
   ansible.builtin.template:
@@ -75,3 +43,13 @@
   community.docker.docker_compose_v2:
     project_src: /opt/pgadmin
     state: present
+    pull: missing
+
+- name: Check that pgAdmin answers
+  ansible.builtin.uri:
+    url: "http://localhost:{{ pgadmin_port }}/misc/ping"
+    status_code: 200
+  register: pgadmin_check
+  retries: 20
+  delay: 6
+  until: pgadmin_check.status == 200

@@ -1,13 +1,14 @@
 services:
-  odoo:
+  {{ odoo_service_name }}:
     image: {{ odoo_image }}
     container_name: {{ odoo_container_name }}
+    restart: unless-stopped
     depends_on:
-      - postgres
+      - {{ postgres_service_name }}
     ports:
-      - "8069:8069"
+      - "{{ odoo_port }}:8069"
     environment:
-      - HOST=postgres
+      - HOST={{ postgres_service_name }}
       - USER={{ postgres_user }}
       - PASSWORD={{ postgres_password }}
     volumes:
@@ -15,22 +16,29 @@ services:
     networks:
       - {{ odoo_network_name }}
 
-  postgres:
+  {{ postgres_service_name }}:
     image: {{ postgres_image }}
     container_name: {{ postgres_container_name }}
+    restart: unless-stopped
     ports:
-      - "{{ hostvars[inventory_hostname]['private_ip'] }}:5432:5432"
+      - "{{ private_ip }}:5432:5432"
     environment:
       - POSTGRES_DB={{ postgres_db }}
       - POSTGRES_USER={{ postgres_user }}
       - POSTGRES_PASSWORD={{ postgres_password }}
     volumes:
-      - {{ postgres_data_path }}:/var/lib/postgresql/data
+      - {{ postgres_volume_name }}:/var/lib/postgresql/data
     networks:
       - {{ odoo_network_name }}
 
 volumes:
   {{ odoo_volume_name }}:
+  {{ postgres_volume_name }}:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: {{ postgres_data_path }}
 
 networks:
   {{ odoo_network_name }}:

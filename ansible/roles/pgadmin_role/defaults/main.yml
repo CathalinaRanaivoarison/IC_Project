@@ -1,15 +1,13 @@
-#SPDX-License-Identifier: MIT-0
 ---
-# defaults file for roles/pgadmin_role
-
+pgadmin_service_name: "pgadmin"
 pgadmin_container_name: "pgadmin"
-
+pgadmin_network_name: "pgadmin_network"
 pgadmin_volume_name: "pgadmin_data"
 
+# Répertoire local des données pgAdmin (modifiable)
 pgadmin_data_path: "/opt/pgadmin_data"
 
 pgadmin_image: "dpage/pgadmin4"
-
 pgadmin_port: 8081
 pgadmin_container_port: 80
 
@@ -17,11 +15,11 @@ pgadmin_default_email: "admin@example.com"
 pgadmin_default_password: "{{ vault_pgadmin_password }}"
 
 servers_file_path: "/opt/pgadmin/servers.json"
+pgpass_file_path: "/opt/pgadmin/pgpass"
 
-#odoo_postgres_host: "{{ hostvars[groups['odoo'][0]]['ansible_host'] }}"
+# Connexion à la base d'Odoo (IP privée du serveur Odoo)
 odoo_postgres_host: "{{ hostvars[groups['odoo'][0]]['private_ip'] }}"
 odoo_postgres_port: 5432
-
 odoo_postgres_db: "postgres"
 odoo_postgres_user: "odoo"
 odoo_postgres_password: "{{ vault_postgres_password }}"

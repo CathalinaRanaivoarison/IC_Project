@@ -1,0 +1,8 @@
+---
+galaxy_info:
+  role_name: web_role
+  author: Cathalina
+  description: Deploy the ic-webapp showcase site
+  license: MIT
+dependencies:
+  - role: docker_role

@@ -1,0 +1,7 @@
+---
+galaxy_info:
+  role_name: docker_role
+  author: Cathalina
+  description: Install Docker Engine and the compose plugin on Ubuntu
+  license: MIT
+dependencies: []

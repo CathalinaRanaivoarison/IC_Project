@@ -196,7 +196,7 @@ pipeline {
                         install -m 600 "$ANSIBLE_VAULT_FILE" "$VAULT_DEST"
 
                         cd ansible
-
+                        export ANSIBLE_ROLES_PATH="$WORKSPACE/ansible/roles"
                         test -s "$ANSIBLE_INVENTORY_FILE"
                         grep -q '^# AWS_INFRASTRUCTURE_RECREATED_AND_INVENTORY_UPDATED$' "$ANSIBLE_INVENTORY_FILE"
 

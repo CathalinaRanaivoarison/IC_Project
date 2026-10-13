@@ -36,3 +36,7 @@ ansible/inventory/hosts.ini
 
 # Ansible Vault secrets
 ansible/group_vars/all/vault.yml
+
+# Sauvegardes locales
+*.backup-*
+*.bak

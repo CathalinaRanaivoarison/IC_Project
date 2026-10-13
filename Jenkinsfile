@@ -1,10 +1,14 @@
 pipeline {
     agent any
 
+    triggers {
+        pollSCM('H/2 * * * *')
+    }
+
     parameters {
         booleanParam(
             name: 'DEPLOY_TO_AWS',
-            defaultValue: false,
+            defaultValue: true,
             description: 'Activer uniquement lorsque les instances AWS et l’inventaire Ansible sont prêts'
         )
     }
@@ -43,6 +47,17 @@ pipeline {
                     echo "ODOO_URL : ${env.ODOO_URL}"
                     echo "PGADMIN_URL : ${env.PGADMIN_URL}"
                 }
+            }
+        }
+
+        stage('Code quality') {
+            steps {
+                sh '''
+                    set -eu
+                    docker run --rm -i hadolint/hadolint hadolint --failure-threshold error - < Dockerfile
+                    docker run --rm -i python:3.11-alpine sh -c \
+                      "pip install -q flake8 && flake8 --select=E9,F63,F7,F82 --stdin-display-name app.py -" < app.py
+                '''
             }
         }
 
@@ -96,7 +111,7 @@ pipeline {
                     for i in $(seq 1 15); do
                       if docker run --rm \
                         --network "$NETWORK_NAME" \
-                        curlimages/curl:latest \
+                        curlimages/curl:8.10.1 \
                         -fsS --max-time 5 \
                         http://test-ic-webapp:8080/ \
                         > /tmp/ic-webapp-test.html; then

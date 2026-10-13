@@ -40,3 +40,5 @@ ansible/group_vars/all/vault.yml
 # Sauvegardes locales
 *.backup-*
 *.bak
+
+ic_project_jenkins*

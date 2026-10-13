@@ -32,3 +32,15 @@ odoo-ec2 ansible_host={output("odoo_public_ip")} private_ip={output("odoo_privat
 INVENTORY.write_text(content)
 print(f"Inventaire Ansible généré : {INVENTORY}")
 print(content, end="")
+
+# Met à jour releases.txt avec les nouvelles IP (la ligne VERSION est conservée)
+RELEASES = ROOT / "releases.txt"
+new_lines = []
+for line in RELEASES.read_text().splitlines():
+    if line.startswith("ODOO_URL"):
+        line = f"ODOO_URL http://{output('odoo_public_ip')}:8069"
+    elif line.startswith("PGADMIN_URL"):
+        line = f"PGADMIN_URL http://{output('web_public_ip')}:8081"
+    new_lines.append(line)
+RELEASES.write_text("\n".join(new_lines) + "\n")
+print(f"releases.txt mis à jour : {RELEASES}")
